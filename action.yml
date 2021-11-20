@@ -26,6 +26,8 @@ runs:
   steps:
     - name: "deploy"
       run: |
+        set -e
+
         SERVICE=${{ inputs.service }}
         PATCH_FIELD=${{ inputs.patch-field }}
         PATCH_VALUE=${{ inputs.patch-value }}
