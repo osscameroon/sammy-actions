@@ -1,0 +1,31 @@
+name: 'Sammy deployment action'
+description: 'This action triggers a deployment workflow'
+inputs:
+  service:
+    description: 'Application service name'
+    required: true
+  type:
+    description: 'The deployment type <compose | kuberbetes | nomad>'
+    required: true
+  patch-field:
+    description: 'The path to the image you want to update <.services.api.image>'
+    required: true
+  patch-value:
+    description: 'The deployment new image'
+    required: true
+  file:
+    description: 'The name of the file you want to edit <docker-compose.yaml>'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "deploy"
+      run: |
+        SERVICE=${{ inputs.service }}
+        PATCH_FIELD=${{ inputs.patch-field }}
+        PATCH_VALUE=${{ inputs.patch-value }}
+        TYPE=${{ inputs.type }}
+        FILE=${{ inputs.file }}
+        curl -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/osscameroon/deployments/actions/workflows/deploy-service.yaml/dispatches -d '{"ref": "main", "inputs": {"service": "'"$SERVICE"'", "patch-field": "'"$PATCH_FIELD"'", "patch-value": "'"$PATCH_VALUE"'", "type": "'"$TYPE"'", "file-name": "'"$FILE"'"}}'
+      shell: bash
