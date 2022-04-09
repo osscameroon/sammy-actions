@@ -7,6 +7,10 @@ inputs:
   type:
     description: 'The deployment type <compose | kuberbetes | nomad>'
     required: true
+  env:
+    description: "env your app should be deployed to"
+    required: true
+    default: "stage"
   patch-field:
     description: 'The path to the image you want to update <.services.api.image>'
     required: true
@@ -25,15 +29,17 @@ runs:
   using: "composite"
   steps:
     - name: "deploy"
+      shell: bash
       run: |
         set -e
 
         SERVICE=${{ inputs.service }}
+        ENVIRONMENT=${{ inputs.env }}
         PATCH_FIELD=${{ inputs.patch-field }}
         PATCH_VALUE=${{ inputs.patch-value }}
         TYPE=${{ inputs.type }}
         FILE=${{ inputs.file }}
         GITHUB_TOKEN=${{ inputs.gh-token }}
 
-        curl -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/osscameroon/deployments/actions/workflows/deploy-service.yaml/dispatches -d '{"ref": "main", "inputs": {"service": "'"$SERVICE"'", "patch-field": "'"$PATCH_FIELD"'", "patch-value": "'"$PATCH_VALUE"'", "type": "'"$TYPE"'", "file-name": "'"$FILE"'"}}'
+      curl -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/osscameroon/deployments/actions/workflows/deploy-service.yaml/dispatches -d '{"ref": "main", "inputs": {"service": "'"$SERVICE"'", "env": "'"$ENVIRONMENT"'", "patch-field": "'"$PATCH_FIELD"'", "patch-value": "'"$PATCH_VALUE"'", "type": "'"$TYPE"'", "file-name": "'"$FILE"'"}}'
       shell: bash
